@@ -1,7 +1,36 @@
 package ru.andrey.kvstorage;
 
-import ru.andrey.kvstorage.console.DatabaseCommandResult;
-import ru.andrey.kvstorage.console.ExecutionEnvironment;
+import ru.andrey.kvstorage.console.*;
+import ru.andrey.kvstorage.exception.DatabaseException;
+
+enum DatabaseCommands {
+    CREATE_DATABASE {
+        @Override
+        DatabaseCommand getCommand(ExecutionEnvironment env, String... args) {
+            return new CreateDatabaseCommand(env, args);
+        }
+    },
+    CREATE_TABLE {
+        @Override
+        DatabaseCommand getCommand(ExecutionEnvironment env, String... args) {
+            return new CreateTableCommand(env, args);
+        }
+    },
+    UPDATE_KEY {
+        @Override
+        DatabaseCommand getCommand(ExecutionEnvironment env, String... args) {
+            return new UpdateKeyCommand(env, args);
+        }
+    },
+    READ_KEY {
+        @Override
+        DatabaseCommand getCommand(ExecutionEnvironment env, String... args) {
+            return new ReadKeyCommand(env, args);
+        }
+    };
+
+    abstract DatabaseCommand getCommand(ExecutionEnvironment env, String... args);
+}
 
 public class DatabaseServer {
 
@@ -12,10 +41,32 @@ public class DatabaseServer {
     }
 
     public static void main(String[] args) {
-
     }
 
     DatabaseCommandResult executeNextCommand(String commandText) {
-        throw new UnsupportedOperationException();
+        if (commandText == null) {
+            return DatabaseCommandResult.error("Unknown command name");
+        }
+
+        String[] lexemes = commandText.split(" ");
+        boolean commandExists = false;
+
+        for (var command : DatabaseCommands.values()) {
+            if (command.name().equals(lexemes[0])) {
+                commandExists = true;
+                break;
+            }
+        }
+
+        if (!commandExists) {
+            return DatabaseCommandResult.error("Unknown command name");
+        }
+
+        DatabaseCommand nextCommand = DatabaseCommands.valueOf(lexemes[0]).getCommand(env, lexemes);
+        try {
+            return nextCommand.execute();
+        } catch (DatabaseException dbe) {
+            return DatabaseCommandResult.error(dbe.getMessage());
+        }
     }
 }
