@@ -7,22 +7,36 @@ import javax.xml.crypto.Data;
 import java.util.Optional;
 
 public class UpdateKeyCommand implements DatabaseCommand {
-    ExecutionEnvironment env;
-    String[] args;
+    private ExecutionEnvironment env;
+    private String databaseName, tableName, key, value;
 
     public UpdateKeyCommand(ExecutionEnvironment env, String... args) {
         this.env = env;
-        this.args = args;
+        if (args.length < 5) {
+            databaseName = null;
+            tableName = null;
+            key = null;
+            value = null;
+        } else {
+            databaseName = args[1];
+            tableName = args[2];
+            key = args[3];
+            value = args[4];
+        }
     }
 
     @Override
     public DatabaseCommandResult execute() throws DatabaseException {
-        if (args.length < 5) {
-            return DatabaseCommandResult.error("Not enough arguments");
+        if (
+                databaseName == null
+                        || tableName == null
+                        || key == null
+                        || value == null
+        ) {
+            return DatabaseCommandResult.error("Not enough information");
         }
 
-        Optional<Database> database = env.getDatabase(args[1]);
-        String tableName = args[2], key = args[3], value = args[4];
+        Optional<Database> database = env.getDatabase(databaseName);
 
         if (database.isPresent()) {
             database.get().write(tableName, key, value);

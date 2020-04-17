@@ -2,25 +2,31 @@ package ru.andrey.kvstorage.console;
 
 import ru.andrey.kvstorage.exception.DatabaseException;
 import ru.andrey.kvstorage.logic.Database;
+
 import java.util.Optional;
 
 public class CreateTableCommand implements DatabaseCommand {
-    ExecutionEnvironment env;
-    String[] args;
+    private ExecutionEnvironment env;
+    private String databaseName, tableName;
 
     public CreateTableCommand(ExecutionEnvironment env, String... args) {
         this.env = env;
-        this.args = args;
+        if (args.length < 3) {
+            databaseName = null;
+            tableName = null;
+        } else {
+            databaseName = args[1];
+            tableName = args[2];
+        }
     }
 
     @Override
     public DatabaseCommandResult execute() throws DatabaseException {
-        if (args.length < 3) {
-            return DatabaseCommandResult.error("Not enough arguments");
+        if (databaseName == null || tableName == null) {
+            return DatabaseCommandResult.error("Not enough information");
         }
 
-        Optional<Database> database = env.getDatabase(args[1]);
-        String tableName = args[2];
+        Optional<Database> database = env.getDatabase(databaseName);
 
         if (database.isPresent()) {
             database.get().createTableIfNotExists(tableName);

@@ -1,27 +1,32 @@
 package ru.andrey.kvstorage.console;
 
 import ru.andrey.kvstorage.exception.DatabaseException;
+import ru.andrey.kvstorage.logic.Database;
 
 public class CreateDatabaseCommand implements DatabaseCommand {
-    ExecutionEnvironment env;
-    String[] args;
+    private ExecutionEnvironment env;
+    private String databaseName;
 
     public CreateDatabaseCommand(ExecutionEnvironment env, String... args) {
         this.env = env;
-        this.args = args;
+        if (args.length < 2) {
+            databaseName = null;
+        } else {
+            databaseName = args[1];
+        }
     }
 
     @Override
     public DatabaseCommandResult execute() throws DatabaseException {
-        if(args.length < 2){
-            return DatabaseCommandResult.error("Not enough arguments");
+        if (databaseName == null) {
+            return DatabaseCommandResult.error("Not enough information");
         }
 
-        if (env.getDatabase(args[1]).isPresent()) {
-            // here will be a future realization of this method
-            return DatabaseCommandResult.error("CreateDBCommand isn't success");
-        } else {
+        if (env.getDatabase(databaseName).isPresent()) {
+            // here will be a future implementation of this method
             return DatabaseCommandResult.success("Database was created");
+        } else {
+            return DatabaseCommandResult.error("CreateDBCommand isn't success");
         }
     }
 }

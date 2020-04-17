@@ -62,8 +62,8 @@ public class DatabaseServer {
             return DatabaseCommandResult.error("Unknown command name");
         }
 
-        DatabaseCommand nextCommand = DatabaseCommands.valueOf(lexemes[0]).getCommand(env, lexemes);
         try {
+            DatabaseCommand nextCommand = DatabaseCommands.valueOf(lexemes[0]).getCommand(env, lexemes);
             return nextCommand.execute();
         } catch (DatabaseException dbe) {
             return DatabaseCommandResult.error(dbe.getMessage());

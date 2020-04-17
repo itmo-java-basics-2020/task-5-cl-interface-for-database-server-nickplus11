@@ -6,22 +6,33 @@ import ru.andrey.kvstorage.logic.Database;
 import java.util.Optional;
 
 public class ReadKeyCommand implements DatabaseCommand {
-    ExecutionEnvironment env;
-    String[] args;
+    private ExecutionEnvironment env;
+    private String databaseName, tableName, key;
 
     public ReadKeyCommand(ExecutionEnvironment env, String... args) {
         this.env = env;
-        this.args = args;
+        if (args.length < 4) {
+            databaseName = null;
+            tableName = null;
+            key = null;
+        } else {
+            databaseName = args[1];
+            tableName = args[2];
+            key = args[3];
+        }
     }
 
     @Override
     public DatabaseCommandResult execute() throws DatabaseException {
-        if (args.length < 4) {
-            return DatabaseCommandResult.error("Not enough arguments");
+        if (
+                databaseName == null
+                        || tableName == null
+                        || key == null
+        ) {
+            return DatabaseCommandResult.error("Not enough information");
         }
 
-        Optional<Database> database = env.getDatabase(args[1]);
-        String tableName = args[2], key = args[3];
+        Optional<Database> database = env.getDatabase(databaseName);
 
         if (database.isPresent()) {
             database.get().read(tableName, key);

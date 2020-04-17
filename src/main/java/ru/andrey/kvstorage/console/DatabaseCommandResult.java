@@ -26,8 +26,8 @@ public interface DatabaseCommandResult {
 
     public class DatabaseCommandResultClass implements DatabaseCommandResult {
 
-        boolean resultIsSuccess;
-        String commandResultInfo;
+        private boolean resultIsSuccess;
+        private String commandResultInfo;
 
         private DatabaseCommandResultClass(boolean isSuccess, String commandResultInfo) {
             resultIsSuccess = isSuccess;
